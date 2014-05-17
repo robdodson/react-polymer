@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <script src="bower_components/platform/platform.js"></script>
+  <link rel="import" href="bower_components/polymer/polymer.html">
+  <link rel="import" href="bower_components/core-ajax/core-ajax.html">
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/showdown/0.3.1/showdown.min.js"></script>
+</head>
+
+<body>
+  <script>
+  var converter = new Showdown.converter();
+  </script>
+
+  <polymer-element name="x-comment" attributes="author">
+    <template>
+      <div className="comment">
+        <h2 className="commentAuthor">
+          {{author}}
+        </h2>
+        <span id="s"></span>
+      </div>
+    </template>
+    <script>
+    Polymer('x-comment', {
+      attached: function() {
+        // Dangerously set innerHTML
+        this.$.s.innerHTML = converter.makeHtml(this.textContent);
+      }
+    });
+    </script>
+  </polymer-element>
+
+  <polymer-element name="comment-list" attributes="data" noscript>
+    <template>
+      <template repeat="{{comment in data}}">
+        <x-comment author="{{comment.author}}">{{comment.text}}</x-comment>
+      </template>
+    </template>
+  </polymer-element>
+
+  <polymer-element name="comment-form">
+    <template>
+      <form className="commentForm" on-submit="{{handleSubmit}}">
+        <input id="author" type="text" placeholder="Your name">
+        <input id="text" type="text" placeholder="Say something...">
+        <input type="submit" value="Post">
+      </form>
+    </template>
+    <script>
+      Polymer('comment-form', {
+        handleSubmit: function(e) {
+          e.preventDefault();
+          var author = this.$.author.value.trim();
+          var text = this.$.text.value.trim();
+          if (!text || !author) {
+            return;
+          }
+          this.fire('comment-submit', {author: author, text: text});
+          this.$.author.value = '';
+          this.$.text.value = '';
+          return;
+        }
+      });
+    </script>
+  </polymer-element>
+
+  <polymer-element name="comment-box" attributes="pollInterval">
+    <template>
+      <core-ajax id="loadComments" url="comments.json" response="{{data}}" on-core-error="{{loadCommentsError}}">
+      </core-ajax>
+
+      <core-ajax id="submitComments" url="comments.json" response="{{data}}">
+      </core-ajax>
+
+      <div className="commentBox">
+        <h1>Comments</h1>
+        <comment-list data="{{data}}"></comment-list>
+        <comment-form on-comment-submit="{{handleCommentSubmit}}">
+        </comment-form>
+      </div>
+    </template>
+    <script>
+    Polymer('comment-box', {
+      data: [],
+      domReady: function() {
+        this.loadCommentsFromServer();
+        // Turn off polling since we don't have a real server to write to
+        // setInterval(this.loadCommentsFromServer.bind(this), this.pollInterval);
+      },
+      loadCommentsFromServer: function() {
+        this.$.loadComments.go();
+      },
+      loadCommentsError: function(e, detail) {
+        console.error(detail.response);
+      },
+      handleCommentSubmit: function(e, comment) {
+        this.data.push(comment);
+      }
+    });
+    </script>
+  </polymer-element>
+
+  <comment-box pollInterval="2000"></comment-box>
+
+</body>
+
+</html>
