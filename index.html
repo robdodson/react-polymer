@@ -33,22 +33,12 @@
     </script>
   </polymer-element>
 
-  <polymer-element name="comment-list" attributes="data">
+  <polymer-element name="comment-list" attributes="data" noscript>
     <template>
       <template repeat="{{comment in data}}">
         <x-comment author="{{comment.author}}">{{comment.text}}</x-comment>
       </template>
     </template>
-    <script>
-    Polymer('comment-list', {
-      publish: {
-        data: { value: [], reflect: true }
-      },
-      dataChanged: function(oldVal, newVal) {
-        console.log(newVal);
-      }
-    });
-    </script>
   </polymer-element>
 
   <polymer-element name="comment-form">
