@@ -71,9 +71,10 @@
     <template>
       <core-ajax id="loadComments" url="comments.json" response="{{data}}" on-core-error="{{loadCommentsError}}">
       </core-ajax>
-
-      <core-ajax id="submitComments" url="comments.json" response="{{data}}">
-      </core-ajax>
+      
+      <!-- Not actually connected to any server -->
+      <!-- <core-ajax id="submitComments" url="comments.json" response="{{data}}">
+      </core-ajax> -->
 
       <div class="commentBox">
         <h1>Comments</h1>
