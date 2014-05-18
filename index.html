@@ -16,34 +16,44 @@
 
   <polymer-element name="x-comment" attributes="author">
     <template>
-      <div className="comment">
-        <h2 className="commentAuthor">
+      <div class="comment">
+        <h2 class="commentAuthor">
           {{author}}
         </h2>
-        <span id="s"></span>
+        <span id="commentText"></span>
       </div>
     </template>
     <script>
     Polymer('x-comment', {
       attached: function() {
         // Dangerously set innerHTML
-        this.$.s.innerHTML = converter.makeHtml(this.textContent);
+        this.$.commentText.innerHTML = converter.makeHtml(this.textContent);
       }
     });
     </script>
   </polymer-element>
 
-  <polymer-element name="comment-list" attributes="data" noscript>
+  <polymer-element name="comment-list" attributes="data">
     <template>
       <template repeat="{{comment in data}}">
         <x-comment author="{{comment.author}}">{{comment.text}}</x-comment>
       </template>
     </template>
+    <script>
+    Polymer('comment-list', {
+      publish: {
+        data: { value: [], reflect: true }
+      },
+      dataChanged: function(oldVal, newVal) {
+        console.log(newVal);
+      }
+    });
+    </script>
   </polymer-element>
 
   <polymer-element name="comment-form">
     <template>
-      <form className="commentForm" on-submit="{{handleSubmit}}">
+      <form class="commentForm" on-submit="{{handleSubmit}}">
         <input id="author" type="text" placeholder="Your name">
         <input id="text" type="text" placeholder="Say something...">
         <input type="submit" value="Post">
@@ -75,7 +85,7 @@
       <core-ajax id="submitComments" url="comments.json" response="{{data}}">
       </core-ajax>
 
-      <div className="commentBox">
+      <div class="commentBox">
         <h1>Comments</h1>
         <comment-list data="{{data}}"></comment-list>
         <comment-form on-comment-submit="{{handleCommentSubmit}}">
